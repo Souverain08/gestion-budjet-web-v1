@@ -1,0 +1,79 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+/* Mode sombre piloté par la classe .dark sur <html> (clair, sombre ou automatique). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Jetons de design partagés avec le mobile (section 6.5).
+ * Contrastes vérifiés AA (4,5:1) pour le texte dans les deux thèmes.
+ */
+:root {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --surface-muted: #eef1f6;
+  --border: #dde2ea;
+  --text: #0f172a;
+  --text-muted: #4b5568;
+  --primary: #1d4ed8; /* bleu : budget */
+  --primary-soft: #dbe6ff;
+  --on-primary: #ffffff;
+  --savings: #047857; /* vert émeraude : épargne */
+  --savings-soft: #d1fae5;
+  --warning: #b45309; /* orange : alerte */
+  --warning-soft: #fef3c7;
+  --danger: #b91c1c; /* rouge : dépassement */
+  --danger-soft: #fee2e2;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0b1220;
+  --surface: #121a2b;
+  --surface-muted: #1a2438;
+  --border: #2a3650;
+  --text: #e8edf6;
+  --text-muted: #a3afc4;
+  --primary: #7aa2ff;
+  --primary-soft: #1e2b4d;
+  --on-primary: #0b1220;
+  --savings: #34d399;
+  --savings-soft: #10332a;
+  --warning: #fbbf24;
+  --warning-soft: #3a2d10;
+  --danger: #f87171;
+  --danger-soft: #3b1717;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+  --color-savings: var(--savings);
+  --color-savings-soft: var(--savings-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-bg text-text font-sans antialiased;
+    font-feature-settings: 'tnum' 1; /* chiffres alignés pour les montants */
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+}
