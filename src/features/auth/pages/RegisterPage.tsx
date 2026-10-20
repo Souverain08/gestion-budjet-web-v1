@@ -16,7 +16,7 @@ import { authService } from '../services/authService';
 /** Inscription en moins d'une minute (US-01). */
 export function RegisterPage() {
   const { t, i18n } = useTranslation();
-  const signIn = useSignIn();
+  const signIn = useSignIn(ROUTES.onboarding);
   const { register, handleSubmit, formState } = useForm<RegisterValues>({ resolver: zodResolver(registerSchema) });
   const signup = useMutation({
     mutationFn: (values: RegisterValues) =>

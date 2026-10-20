@@ -3,6 +3,7 @@ export const ROUTES = {
   register: '/register',
   forgotPassword: '/forgot-password',
   resetPassword: '/reset-password',
+  onboarding: '/onboarding',
   dashboard: '/',
   budget: '/budget',
   category: (id = ':id') => `/budget/categories/${id}`,

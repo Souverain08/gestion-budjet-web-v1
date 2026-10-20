@@ -57,9 +57,14 @@ export function DashboardPage() {
               title={t('dashboard.unplannedTitle', { month: formatMonth(month, i18n.language) })}
               description={t('dashboard.unplannedText')}
               actions={
-                <Link to={ROUTES.budget} className={buttonClass()}>
-                  {t('budget.planAction')}
-                </Link>
+                <>
+                  <Link to={ROUTES.onboarding} className={buttonClass()}>
+                    {t('onboarding.guided')}
+                  </Link>
+                  <Link to={ROUTES.budget} className={buttonClass('secondary')}>
+                    {t('budget.planAction')}
+                  </Link>
+                </>
               }
             />
           )}

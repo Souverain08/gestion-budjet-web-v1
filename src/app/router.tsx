@@ -9,6 +9,7 @@ import { ResetPasswordPage } from '../features/auth/pages/ResetPasswordPage';
 import { BudgetPage } from '../features/budgets/pages/BudgetPage';
 import { CategoryDetailPage } from '../features/budgets/pages/CategoryDetailPage';
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage';
+import { OnboardingPage } from '../features/onboarding/pages/OnboardingPage';
 import { ExpensesPage } from '../features/expenses/pages/ExpensesPage';
 import { IncomesPage } from '../features/incomes/pages/IncomesPage';
 import { SavingsAccountPage } from '../features/savings/pages/SavingsAccountPage';
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
   {
     element: <RequireAuth />,
     children: [
+      { path: ROUTES.onboarding, element: <OnboardingPage /> },
       {
         element: <MainLayout />,
         children: [
