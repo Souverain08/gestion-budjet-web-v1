@@ -1,4 +1,4 @@
-import { LayoutDashboard, PiggyBank, Plus, Receipt, Settings, Wallet, Banknote } from 'lucide-react';
+import { Banknote, History, LayoutDashboard, PiggyBank, Plus, Receipt, Settings, Wallet } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet } from 'react-router';
@@ -11,13 +11,15 @@ import { Button } from '../ui';
 const NAV = [
   { to: ROUTES.dashboard, key: 'nav.dashboard', icon: LayoutDashboard, end: true },
   { to: ROUTES.budget, key: 'nav.budget', icon: Wallet },
+  { to: ROUTES.tracking, key: 'nav.tracking', icon: History },
   { to: ROUTES.expenses, key: 'nav.expenses', icon: Receipt },
   { to: ROUTES.incomes, key: 'nav.incomes', icon: Banknote },
   { to: ROUTES.savings, key: 'nav.savings', icon: PiggyBank },
   { to: ROUTES.settings, key: 'nav.settings', icon: Settings },
 ] as const;
 
-const MOBILE_TABS = NAV.filter((n) => n.to !== ROUTES.incomes);
+// Revenus et suivi s'ouvrent depuis le budget et le tableau de bord.
+const MOBILE_TABS = NAV.filter((n) => n.to !== ROUTES.incomes && n.to !== ROUTES.tracking);
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium transition ${

@@ -102,6 +102,11 @@ export function DashboardPage() {
           </div>
 
           {s.planned && <BudgetHealth health={s.health} />}
+          {s.planned && (
+            <Link to={ROUTES.tracking} className={`${buttonClass('secondary')} w-full sm:w-auto`}>
+              {t('tracking.open')}
+            </Link>
+          )}
 
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>

@@ -7,6 +7,7 @@ export const ROUTES = {
   dashboard: '/',
   budget: '/budget',
   category: (id = ':id') => `/budget/categories/${id}`,
+  tracking: '/tracking',
   expenses: '/expenses',
   incomes: '/incomes',
   savings: '/savings',

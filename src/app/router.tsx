@@ -15,6 +15,7 @@ import { IncomesPage } from '../features/incomes/pages/IncomesPage';
 import { SavingsAccountPage } from '../features/savings/pages/SavingsAccountPage';
 import { SavingsPage } from '../features/savings/pages/SavingsPage';
 import { SettingsPage } from '../features/settings/pages/SettingsPage';
+import { TrackingPage } from '../features/tracking/pages/TrackingPage';
 import { useAppSelector } from './store';
 
 function RequireAuth() {
@@ -50,6 +51,7 @@ export const router = createBrowserRouter([
           { path: ROUTES.dashboard, element: <DashboardPage /> },
           { path: ROUTES.budget, element: <BudgetPage /> },
           { path: ROUTES.category(), element: <CategoryDetailPage /> },
+          { path: ROUTES.tracking, element: <TrackingPage /> },
           { path: ROUTES.expenses, element: <ExpensesPage /> },
           { path: ROUTES.incomes, element: <IncomesPage /> },
           { path: ROUTES.savings, element: <SavingsPage /> },

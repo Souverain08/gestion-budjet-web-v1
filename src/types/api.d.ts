@@ -21,6 +21,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Historique des opérations (traçabilité)
+         * @description Chaque création, modification ou suppression d’un revenu, d’une dépense, d’un mouvement d’épargne ou du plan, avec montant avant et après. Les plus récentes d’abord.
+         */
+        get: operations["Activity_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/register": {
         parameters: {
             query?: never;
@@ -168,6 +188,46 @@ export interface paths {
          * @description Un changement de devise ne s’applique qu’aux nouveaux budgets (RG-15).
          */
         patch: operations["Users_updateMe"];
+        trace?: never;
+    };
+    "/v1/budgets/{id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Bilan du mois : où est passé chaque franc, prévu et réel
+         * @description Revenu → épargné → dépensé → reste, puis prévu, réel et écart (réel − prévu) pour l’épargne, les dépenses et chaque catégorie.
+         */
+        get: operations["Budgets_report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/budgets/{id}/statement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Relevé du mois : chaque mouvement et le solde qui évolue
+         * @description Revenus (+), dépenses (−), versements à l’épargne (−) et retraits (+), du plus ancien au plus récent. Un revenu attendu est daté du début de la période.
+         */
+        get: operations["Budgets_statement"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/v1/budgets": {
@@ -565,6 +625,35 @@ export interface components {
                 [key: string]: string[];
             };
         };
+        ActivityView: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            budgetId: string | null;
+            /** @enum {string} */
+            entity: "budget" | "category" | "income" | "expense" | "savings_account" | "savings_transaction";
+            /** Format: uuid */
+            entityId: string;
+            /** @enum {string} */
+            action: "created" | "updated" | "deleted" | "activated" | "duplicated" | "reallocated";
+            /** @description Libellé au moment de l’opération */
+            label: string | null;
+            /** @description Montant avant, en centimes */
+            amountBeforeCents: number | null;
+            /** @description Montant après, en centimes */
+            amountAfterCents: number | null;
+            currency: string | null;
+            /** @description Champs modifiés : { champ: [avant, après] } */
+            changes: {
+                [key: string]: unknown[];
+            } | null;
+            /** Format: date-time */
+            occurredAt: string;
+        };
+        ActivityPageView: {
+            items: components["schemas"]["ActivityView"][];
+            nextCursor: string | null;
+        };
         RegisterDto: {
             /** Format: email */
             email: string;
@@ -660,6 +749,80 @@ export interface components {
             locale?: "fr" | "en";
             /** @enum {string} */
             theme?: "system" | "light" | "dark";
+        };
+        FlowView: {
+            /** @description Revenus du mois (attendus et reçus) */
+            incomeCents: number;
+            /** @description Dont reçus */
+            receivedIncomeCents: number;
+            /** @description Versé à l’épargne, net des retraits */
+            savedCents: number;
+            /** @description Dépensé, « Non planifié » compris */
+            spentCents: number;
+            /** @description Revenus − épargné − dépensé */
+            remainingCents: number;
+        };
+        PlanActualView: {
+            plannedCents: number;
+            actualCents: number;
+            /** @description Réel − prévu. Épargne : positif = plus épargné que prévu. Dépenses : positif = dépassement. */
+            gapCents: number;
+        };
+        ReportLineView: {
+            plannedCents: number;
+            actualCents: number;
+            /** @description Réel − prévu. Épargne : positif = plus épargné que prévu. Dépenses : positif = dépassement. */
+            gapCents: number;
+            /**
+             * Format: uuid
+             * @description null : Non planifié
+             */
+            categoryId: string | null;
+            name: string;
+            color: string | null;
+        };
+        BudgetReportView: {
+            /** Format: uuid */
+            budgetId: string;
+            currency: string;
+            /** Format: date */
+            periodStart: string;
+            /** Format: date */
+            periodEnd: string;
+            flow: components["schemas"]["FlowView"];
+            /** @description Objectif d’épargne et épargne réelle */
+            savings: components["schemas"]["PlanActualView"];
+            /** @description Total des dépenses */
+            spending: components["schemas"]["PlanActualView"];
+            /** @description Par catégorie */
+            lines: components["schemas"]["ReportLineView"][];
+        };
+        StatementEntryView: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            date: string;
+            /** @enum {string} */
+            kind: "income" | "expense" | "savings_deposit" | "savings_withdrawal";
+            label: string | null;
+            /** @description Catégorie ou compte d’épargne */
+            detail: string | null;
+            /** @description Effet sur l’argent disponible : + entrée, − sortie */
+            amountCents: number;
+            /** @description Solde après ce mouvement */
+            balanceCents: number;
+            /** @description Revenu attendu, pas encore reçu */
+            expected: boolean;
+        };
+        StatementView: {
+            /** Format: uuid */
+            budgetId: string;
+            currency: string;
+            /** @example 0 */
+            openingBalanceCents: number;
+            /** @description Du plus ancien au plus récent */
+            entries: components["schemas"]["StatementEntryView"][];
+            closingBalanceCents: number;
         };
         CategoryView: {
             /** Format: uuid */
@@ -1246,6 +1409,48 @@ export interface operations {
             };
         };
     };
+    Activity_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                /** @description Historique d'un mois ; absent : toutes les opérations */
+                budgetId?: string;
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityPageView"];
+                };
+            };
+            /** @description Données invalides */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
+            /** @description Non authentifié */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
+        };
+    };
     Auth_register: {
         parameters: {
             query?: never;
@@ -1655,6 +1860,102 @@ export interface operations {
             };
             /** @description Non authentifié */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
+        };
+    };
+    Budgets_report: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetReportView"];
+                };
+            };
+            /** @description Données invalides */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
+            /** @description Non authentifié */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
+            /** @description Introuvable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
+        };
+    };
+    Budgets_statement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatementView"];
+                };
+            };
+            /** @description Données invalides */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
+            /** @description Non authentifié */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorDto"];
+                };
+            };
+            /** @description Introuvable */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
