@@ -43,14 +43,14 @@ export function ActivityPanel({ budgetId, currency }: { budgetId: string; curren
   );
 }
 
-type T = ReturnType<typeof useTranslation>['t'];
+export type T = ReturnType<typeof useTranslation>['t'];
 
 /** « Dépense modifiée : Marché » */
-function describe(item: Activity, t: T): string {
+export function describe(item: Activity, t: T): string {
   const what = t(`tracking.entity.${item.entity}`);
   const action = t(`tracking.action.${item.action}`);
   const label = item.label === 'savingsTarget' ? t('budget.savingsTarget') : item.label;
-  return label ? `${what} ${action} : ${label}` : `${what} ${action}`;
+  return label ? `${action} · ${what} : ${label}` : `${action} · ${what}`;
 }
 
 function changesText(item: Activity, t: T): string | null {
@@ -61,7 +61,7 @@ function changesText(item: Activity, t: T): string | null {
   return parts.length ? parts.join(' · ') : null;
 }
 
-function Amounts({ item, currency }: { item: Activity; currency: string }) {
+export function Amounts({ item, currency }: { item: Activity; currency: string }) {
   const before = item.amountBeforeCents;
   const after = item.amountAfterCents;
   if (before === null && after === null) return null;

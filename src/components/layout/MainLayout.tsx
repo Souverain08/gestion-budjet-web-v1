@@ -1,8 +1,9 @@
 import { Banknote, History, LayoutDashboard, PiggyBank, Plus, Receipt, Settings, Wallet } from 'lucide-react';
+import { Link } from 'react-router';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet } from 'react-router';
-import { openQuickExpense, useAppDispatch } from '../../app/store';
+import { openQuickExpense, useAppDispatch, useCurrentUser } from '../../app/store';
 import { ROUTES } from '../../constants/routes.constants';
 import { QuickExpenseModal } from '../../features/expenses/components/QuickExpenseModal';
 import { OfflineBanner } from '../feedback';
@@ -21,15 +22,17 @@ const NAV = [
 // Revenus et suivi s'ouvrent depuis le budget et le tableau de bord.
 const MOBILE_TABS = NAV.filter((n) => n.to !== ROUTES.incomes && n.to !== ROUTES.tracking);
 
+// Élément actif : pilule bleue pleine (modèle Pelio).
 const linkClass = ({ isActive }: { isActive: boolean }) =>
-  `flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium transition ${
-    isActive ? 'bg-primary-soft text-primary' : 'text-muted hover:bg-surface-muted hover:text-text'
+  `flex items-center gap-3 rounded-xl px-4 py-2.5 font-medium transition ${
+    isActive ? 'bg-primary text-on-primary shadow-md shadow-primary/25' : 'text-muted hover:bg-surface-muted hover:text-text'
   }`;
 
 /** Barre latérale sur ordinateur, barre d'onglets en bas sur téléphone. */
 export function MainLayout() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
+  const user = useCurrentUser();
   const renderTab = ({ to, key, icon: Icon, ...rest }: (typeof NAV)[number]) => (
     <MobileTab key={to} to={to} label={t(`${key}Short`)} end={'end' in rest} icon={<Icon className="size-5" aria-hidden />} />
   );
@@ -40,15 +43,14 @@ export function MainLayout() {
         {t('nav.skip')}
       </a>
 
-      <aside className="sticky top-0 hidden h-dvh flex-col gap-6 border-r border-border bg-surface p-4 md:flex">
-        <div className="flex items-center gap-2 px-2">
-          <img src="/icons/icon.svg" alt="" className="size-8" />
-          <span className="font-semibold">{t('app.name')}</span>
-        </div>
-        <Button icon={<Plus className="size-4" />} onClick={() => dispatch(openQuickExpense())}>
-          {t('expenses.add')}
-        </Button>
-        <nav aria-label={t('nav.label')} className="flex flex-col gap-1">
+      <aside className="sticky top-0 hidden h-dvh flex-col gap-8 border-r border-border bg-surface px-4 py-6 md:flex">
+        <Link to={ROUTES.dashboard} className="flex items-center gap-2 px-2">
+          <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-700 to-blue-500 text-white">
+            <Wallet className="size-5" aria-hidden />
+          </span>
+          <span className="text-lg font-bold tracking-tight text-primary">{t('app.name')}</span>
+        </Link>
+        <nav aria-label={t('nav.label')} className="flex flex-1 flex-col gap-1.5">
           {NAV.map(({ to, key, icon: Icon, ...rest }) => (
             <NavLink key={to} to={to} className={linkClass} end={'end' in rest}>
               <Icon className="size-5" aria-hidden />
@@ -56,11 +58,44 @@ export function MainLayout() {
             </NavLink>
           ))}
         </nav>
+        <Link to={ROUTES.settings} className="flex items-center gap-3 rounded-2xl bg-surface-muted p-3 hover:bg-primary-soft">
+          <Avatar name={user.displayName ?? user.email} />
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-semibold">{user.displayName ?? t('nav.settings')}</span>
+            <span className="block truncate text-xs text-muted">{user.email}</span>
+          </span>
+        </Link>
       </aside>
 
       <div className="flex min-w-0 flex-col pb-20 md:pb-0">
         <OfflineBanner />
-        <main id="main" className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 md:px-8">
+        <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border bg-surface/90 px-4 py-3 backdrop-blur md:px-8">
+          <Link to={ROUTES.dashboard} className="flex items-center gap-2 md:hidden">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-700 to-blue-500 text-white">
+              <Wallet className="size-4" aria-hidden />
+            </span>
+            <span className="font-bold text-primary">{t('app.name')}</span>
+          </Link>
+          <p className="hidden text-sm text-muted md:block">
+            {new Intl.DateTimeFormat(i18n.language, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())}
+          </p>
+          <div className="flex items-center gap-3">
+            {/* Sur téléphone, la saisie passe par le « + » de la barre du bas. */}
+            <span className="hidden md:block">
+              <Button size="sm" icon={<Plus className="size-4" />} onClick={() => dispatch(openQuickExpense())}>
+                {t('expenses.add')}
+              </Button>
+            </span>
+            <Link to={ROUTES.settings} className="flex items-center gap-2" aria-label={t('nav.settings')}>
+              <Avatar name={user.displayName ?? user.email} />
+              <span className="hidden text-left lg:block">
+                <span className="block text-sm font-semibold">{t('dashboard.hello', { name: user.displayName ?? '' }).trim()}</span>
+                <span className="block text-xs text-muted">{user.email}</span>
+              </span>
+            </Link>
+          </div>
+        </header>
+        <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-8">
           <Outlet />
         </main>
       </div>
@@ -86,6 +121,21 @@ export function MainLayout() {
 
       <QuickExpenseModal />
     </div>
+  );
+}
+
+/** Initiales de l'utilisateur dans un rond coloré. */
+function Avatar({ name }: { name: string }) {
+  const initials = name
+    .split(/[s@.]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]!.toUpperCase())
+    .join('');
+  return (
+    <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-700 to-blue-500 text-sm font-bold text-white">
+      {initials}
+    </span>
   );
 }
 

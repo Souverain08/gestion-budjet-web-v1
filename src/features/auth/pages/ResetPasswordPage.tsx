@@ -5,8 +5,9 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 import { FormError } from '../../../components/feedback';
-import { Button, Field, Input } from '../../../components/ui';
+import { Spinner } from '../../../components/ui';
 import { ROUTES } from '../../../constants/routes.constants';
+import { AuthField, pillClass } from '../components/AuthField';
 import { AuthLayout } from '../components/AuthLayout';
 import { resetPasswordSchema, type ResetPasswordValues } from '../schemas/authSchemas';
 import { authService } from '../services/authService';
@@ -18,36 +19,49 @@ export function ResetPasswordPage() {
   const token = params.get('token') ?? '';
   const { register, handleSubmit, formState } = useForm<ResetPasswordValues>({
     resolver: zodResolver(resetPasswordSchema),
+    mode: 'onTouched',
   });
   const reset = useMutation({
     mutationFn: (v: ResetPasswordValues) => authService.resetPassword({ token, password: v.password }),
   });
-  const e = formState.errors;
+  const { errors: e, touchedFields: touched } = formState;
 
   return (
     <AuthLayout title={t('auth.resetTitle')}>
       {reset.isSuccess ? (
-        <div className="space-y-4">
-          <div role="status" className="flex items-start gap-3 rounded-xl bg-savings-soft p-4 text-savings">
+        <div className="space-y-6">
+          <div role="status" className="flex items-start gap-3 rounded-2xl bg-savings-soft p-4 text-savings">
             <CheckCircle2 className="size-5 shrink-0" aria-hidden />
             <p>{t('auth.resetDone')}</p>
           </div>
-          <Link to={ROUTES.login} className="block text-center font-medium text-primary hover:underline">
+          <Link to={ROUTES.login} className={pillClass('solid')}>
             {t('auth.loginAction')}
           </Link>
         </div>
       ) : (
-        <form noValidate className="space-y-4" onSubmit={handleSubmit((v) => reset.mutate(v))}>
-          <Field label={t('auth.newPassword')} hint={t('validation.password')} error={e.password && t(e.password.message!)}>
-            {(p) => <Input {...p} type="password" autoComplete="new-password" {...register('password')} />}
-          </Field>
-          <Field label={t('auth.confirmPassword')} error={e.confirm && t(e.confirm.message!)}>
-            {(p) => <Input {...p} type="password" autoComplete="new-password" {...register('confirm')} />}
-          </Field>
+        <form noValidate className="space-y-6" onSubmit={handleSubmit((v) => reset.mutate(v))}>
+          <AuthField
+            label={t('auth.newPassword')}
+            type="password"
+            autoComplete="new-password"
+            hint={t('validation.password')}
+            error={e.password && t(e.password.message!)}
+            valid={touched.password}
+            {...register('password')}
+          />
+          <AuthField
+            label={t('auth.confirmPassword')}
+            type="password"
+            autoComplete="new-password"
+            error={e.confirm && t(e.confirm.message!)}
+            valid={touched.confirm}
+            {...register('confirm')}
+          />
           <FormError error={reset.error} />
-          <Button type="submit" className="w-full" loading={reset.isPending} disabled={!token}>
+          <button type="submit" className={pillClass('solid')} disabled={reset.isPending || !token}>
+            {reset.isPending && <Spinner className="size-4" />}
             {t('auth.resetAction')}
-          </Button>
+          </button>
         </form>
       )}
     </AuthLayout>

@@ -6,7 +6,7 @@ import { IconButton } from '../ui';
 export function MonthSwitcher({ value, onChange }: { value: YearMonth; onChange: (v: YearMonth) => void }) {
   const { t, i18n } = useTranslation();
   return (
-    <div className="inline-flex items-center gap-1 rounded-xl border border-border bg-surface p-1">
+    <div className="inline-flex items-center gap-1 rounded-xl border border-border bg-surface p-1 text-text">
       <IconButton label={t('common.previousMonth')} onClick={() => onChange(shiftMonth(value, -1))}>
         <ChevronLeft className="size-5" />
       </IconButton>
